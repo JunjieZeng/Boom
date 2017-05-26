@@ -1,0 +1,86 @@
+*{
+	padding: 0;
+	margin: 0;
+}
+html,body{
+	width: 100%;
+	height: 100%;
+}
+body {
+    background-color:#F7FAFC;
+}
+input[type="button"]{
+	text-align: center;
+}
+.lswrapper{
+    width:300px;
+    margin:150px auto;
+}
+.lstitle{
+    width:100%;
+    height:70px;
+    text-align:center;
+    position:relative;
+}
+.lsbtn{
+    color:#808080;
+    text-decoration:none;
+    font-size:18px;
+    line-height:20px;
+}
+.signup{
+    margin-right:30px;
+}
+.lsbtn:hover{
+    color:#555;
+}
+.active{
+    color:#0f88eb!important;
+}
+.active:hover{
+    color:#0f88eb!important;
+}
+.underline{
+    position:absolute;
+    width:40px;
+    height:2px;
+    background-color:#0f88eb;
+    margin-top:10px;
+}
+.signingroup,.signupgroup{
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    height:150px;
+}
+.signingroup{
+    height:100px;
+}
+.signingroup input{
+    border:0px!important;
+    height:47%;
+    width:100%!important;
+    padding:12px auto;
+}
+.signupgroup input{
+    border:0px!important;
+    height:31%;
+    width:100%!important;
+    padding:12px auto;
+}
+.uline{
+    background-color:#d5d5d5;
+    width:298px;
+    height:1px;
+}
+#btnLogin,#btnSignup{
+    background: #0f88eb;
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    width: 100%;
+    margin-top:20px;
+}
+.mytable{
+
+}
