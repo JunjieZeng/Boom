@@ -1,1 +1,1618 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TNT</title>
+</head>
+<style>
+html,body{
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+	}
+	*{
+		margin: 0;
+		padding: 0;
+		text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+	}
+	.header{
+		height: 741px;
+		min-width: 1000px;
+		overflow: hidden;
+		background: url("image/header_bg.jpg") no-repeat 50% -30px;
+	}
+	.game_header{
+		width: 1000px;
+		height: 100%;
+		margin: 0 auto;
+		background: url("image/header.jpg") no-repeat 50% -30px;
+		position: relative;
+	}
+	.game_room_back{
+		width: 1000px;
+		height: 599px;
+		background: url("image/ba.jpg");
+		position: relative;
+		top: 117px;
+	}
+	.fnode{
+		width: 1000px;
+		height: 600px;
+		border: 1px solid black;
+		position: absolute;
+	}
+	.canvans{
+		position: relative;
+		top: 0;
+		left: 0;
+	}
+	canvas{
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+</style>
+<script src="js/easeljs.min.js"></script>
+<script src="js/bitmapdata-1.1.1.min.js"></script>
+<body>
+	<div id="app">
+		<div class="header">
+			<div class="game_header">
+				<div class="game_room_back">
+					<canvas id="myCanvas" width="1000" height="600" style="border:1px solid black"></canvas>
+				</div>
+			</div>
+		</div>
+	</div>		
+
+<script>
+(function(){
+	var moveLeft = false;
+	var moveRight = false;
+	var turnTop = false;
+	var turnDown = false;
+	var xVel = 5;
+	var dashlready = true;
+	var dashdeg = 45;
+	var lasttimehero1deg = 0;
+	var lasttimehero2deg = 0;
+	var power = 0;
+	var powerup = false;
+	var canvas = document.getElementById("myCanvas")
+	var stage = new createjs.Stage(canvas);
+	canvas.height = 600;
+	canvas.width = 1000;
+	var stageHeight = canvas.height;
+	var stageWidth = canvas.width;
+	var landimg = new Image();
+	landimg.src = "image/地形.png";
+	var hero_IVANimg = new Image();
+	hero_IVANimg.src = "image/hero-IVAN.png";
+	var hero_FIONAimg = new Image();
+	hero_FIONAimg.src = "image/hero-FIONA.png";
+	var wapon1img = new Image();
+	wapon1img.src = "image/800-80.png";
+	var wapon2img = new Image();
+	wapon2img.src = "image/800-80-1.png";
+	var bgFar1 = new Image();
+	bgFar1.src = "image/bg-far2.png";
+	var bgFar2 = new Image();
+	bgFar2.src = "image/bg-far1-1.png";
+	var addspeedx = 0;
+	var addspeedy = 0;
+	var resetwaponpos = false;
+	var throwwapon = false;
+	var gravity = 0.9;
+	var derct = -1;
+	var addholdlist = new Array();
+	var landbitmapData=undefined;
+	var stepClear = 1;
+	var rect1;
+	var hold = false;
+	var landbitmap;
+	var degdashline;
+	var bgFar1bitmap;
+	var bgFar2bitmap;
+	var data=[{"type":1,"name":null,"health":100,"strength":100,"position":170,"powerupthing":false,"defthing":false,"averhealththing":false,"pofuchenzhouthing":0,"changeposthing":false},{"type":0,"name":null,"health":100,"strength":100,"position":470,"powerupthing":false,"defthing":false,"averhealththing":false,"pofuchenzhouthing":0,"changeposthing":false}];
+	var wapongdata=[{"type":0},{"type":1}];
+	var herosprite1;
+	var herosprite2;
+	var text1;
+	var text2;
+	var heroNow;
+	var heronoNow;
+	var menulowimg=new Image();
+	menulowimg.src="image/menulow.png";
+	var healthborderimg=new Image();
+	healthborderimg.src="image/healthborder.png";
+	var healthinfimg=new Image();
+	healthinfimg.src="image/healthinf.png";
+	var strengthinfimg=new Image();
+	strengthinfimg.src="image/strengthinf.png";
+	var strengthborderimg=new Image();
+	strengthborderimg.src="image/strengthborder.png"
+	var healthimg=new Image();
+	var strengthimg=new Image();
+	healthimg.src="image/health.png";
+	strengthimg.src="image/strength.png";
+	var degclockimg=new Image();
+	degclockimg.src="image/degclock.png";
+	var zhiyeimg=new Image();
+	zhiyeimg.src="image/zhiye.png";
+	var waponlistimg=new Image();
+	waponlistimg.src="image/waponlist.png";
+	var lockimg=new Image();
+	lockimg.src="image/lock.png";
+	var chiziimg=new Image();
+	chiziimg.src="image/chizi.png";
+	var powerpresimg=new Image();
+	powerpresimg.src="image/powerprs.png";
+	var keyimg=new Image();
+	keyimg.src="image/key.png";
+	var flyimg=new Image();
+	flyimg.src="image/fly.png";
+	var fly_hoverimg=new Image();
+	fly_hoverimg.src="image/fly-hover.png";
+	var flybool=false;
+	var herohealthchange=false;
+	var balstimg=new Image();
+	balstimg.src="image/爆炸.png";
+	var lastcount;
+	var blastanimation=false;
+	var strengthchange=false;
+	var waponpreimg=new Image();
+	waponpreimg.src="image/waponpre.png";
+	var waponbluepreimg=new Image();
+	waponbluepreimg.src="image/waponbluepre.png";
+	var waponchange;
+	var waponNow;
+	var wapon1sprite;
+	var wapon2sprite;
+	var count0img=new Image();
+	var count1img=new Image();
+	var count2img=new Image();
+	var count3img=new Image();
+	var count4img=new Image();
+	var count5img=new Image();
+	var count6img=new Image();
+	var count7img=new Image();
+	var count8img=new Image();
+	var count9img=new Image();
+	count0img.src="image/0.png";
+	count1img.src="image/1.png";
+	count2img.src="image/2.png";
+	count3img.src="image/3.png";
+	count4img.src="image/4.png";
+	count5img.src="image/5.png";
+	count6img.src="image/6.png";
+	count7img.src="image/7.png";
+	count8img.src="image/8.png";
+	count9img.src="image/9.png";
+	var countimg;
+	var countimgcount=9;
+	var intervallastcount=true;
+	var countback;
+	var keyNow=null;
+	var yourturn_red=new Image();
+	var yourturn_blue=new Image();
+	yourturn_red.src="image/yourturn-red.png";
+	yourturn_blue.src="image/yourturn-blue.png";
+	var yourturn;
+	var huihestart=false;
+	var menucontainer;
+	var startgamebgimg=new Image();
+	startgamebgimg.src="image/startgamebg.png";
+	var startgamebg;
+	var gamestart=false;
+	var startgamebtnimg=new Image();
+	startgamebtnimg.src="image/startgamebtn.png";
+	var startgamebtn_pressimg=new Image();
+	startgamebtn_pressimg.src="image/startgamebtn-press.png";
+	var startgamebtn;
+
+	var heroselectbg;
+	var heroselectbgimg=new Image();
+	heroselectbgimg.src="image/ba.jpg";
+	var heroselect;
+	var heroselectimg=new Image();
+	heroselectimg.src="image/hero-select.png";
+	var IVANimg=new Image();
+	var IVAN_selectedimg=new Image();
+	var FIONAimg=new Image();
+	var FIONA_selectedimg=new Image();
+	IVANimg.src="image/IVAN.png";
+	IVAN_selectedimg.src="image/IVAN-selected.png";
+	FIONAimg.src="image/FIONA.png";
+	FIONA_selectedimg.src="image/FIONA-selected.png";
+	var IVAN;
+	var FIONA;
+	var IVANselected=false;
+	var FIONAselected=false;
+	var entergame;
+	var entergameimg=new Image();
+	entergameimg.src="image/entergame.png";
+	var player1;
+	var player2;
+
+	var powerupthing;
+	var powerupimg=new Image();
+	powerupimg.src="image/powerup.png";
+	var medthing;
+	var medimg=new Image();
+	medimg.src="image/med.png";
+	var defthing;
+	var defimg=new Image();
+	defimg.src="image/def.png";
+	var averhealththing=new Image();
+	var averhealthimg=new Image();
+	averhealthimg.src="image/averhealth.png";
+	var pofuchenzhouthing;
+	var pofuchenzhouimg=new Image();
+	pofuchenzhouimg.src="image/pofuchenzhou.png";
+	var changeposthing;
+	var changeposimg=new Image();
+	changeposimg.src="image/changepos.png";
+	var endgame=false;
+	var IVANnodie=true;
+	var winner;
+	var loser;
+	var endgamebg;
+	var endgamebgimg=new Image();
+	endgamebgimg.src="image/endgamebg.png";
+
+	var end_winner;
+	var end_loser;
+	var IVAN_winimg=new Image();
+	IVAN_winimg.src="image/IVAN-win.png";
+	var IVAN_loseimg=new Image();
+	IVAN_loseimg.src="image/IVAN-lose.png";
+	var FIONA_loseimg=new Image();
+	FIONA_loseimg.src="image/FIONA-lose.png";
+	var FIONA_winimg=new Image();
+	FIONA_winimg.src="image/FIONA-win.png";
+	var winimg=new Image();
+	var loseimg=new Image();
+	winimg.src="image/win.png";
+	loseimg.src="image/lose.png";
+	var win;
+	var lose;
+	var restart;
+	var restartimg=new Image();
+	restartimg.src="image/restart.png";
+	var restart_presssimg=new Image();
+	restart_presssimg.src="image/restart-press.png";
+	var fpsLabel;
+
+	function setup(){
+		bgFar1bitmap = new createjs.Bitmap(bgFar1);
+		stage.addChild(bgFar1bitmap);
+		bgFar2bitmap = new createjs.Bitmap(bgFar2);
+		stage.addChild(bgFar2bitmap);
+		bgFar2bitmap.y=-100;
+		landbitmap = new createjs.Bitmap(landimg);
+		stage.addChild(landbitmap);
+		stage.update();
+
+
+		var previewborder = new createjs.Shape();
+		previewborder.graphics.setStrokeStyle(2).beginStroke("rgba(0,0,0,.5)").drawRect(880, 0, 120, 120);
+		stage.addChild(previewborder);
+		var prelandimg = new Image();
+		prelandimg.src = "image/地形-pre.png";
+		var preland = new createjs.Bitmap(prelandimg);
+		preland.x = 880;
+		stage.addChild(preland);
+
+		var smallmap = new createjs.Shape();
+		smallmap.graphics.setStrokeStyle(2).beginStroke("rgba(0,0,0,.5)").beginFill("rgba(0,0,0,0.2)").drawRect(0, 0, 120*(1000/1800), 120*(600/1800));
+		smallmap.x = 880-landbitmap.x*(120/1800);
+		stage.addChild(smallmap);
+
+	//hero
+		var herospritesheet = new createjs.SpriteSheet({
+			"images":[hero_IVANimg],
+			"frames":{"height":60,"count":1,"width":65},
+			"animations":{run:[0,0]}
+		});
+		var herosprite2sheet = new createjs.SpriteSheet({
+			"images":[hero_FIONAimg],
+			"frames":{"height":60,"count":1,"width":65},
+			"animations":{run:[0,0]}
+		});
+		for(var i=0;i<data.length;i++){
+			if(i==0){
+				herosprite1 = new createjs.Sprite(herospritesheet);
+				herosprite1.x = data[0].position;
+				stage.addChild(herosprite1)
+
+				text1 = new createjs.Text("玩家1", "20px Arial", "RED");
+				text1.textBaseline = "alphabetic";
+			}else{
+				 herosprite2 = new createjs.Sprite(herosprite2sheet);
+				herosprite2.x = data[1].position;
+				stage.addChild(herosprite2)
+
+				text2 = new createjs.Text("玩家2", "20px Arial", "BLUE");
+				text2.textBaseline = "alphabetic";
+			}
+			
+		}
+		heroNow=herosprite1;
+		heronoNow=herosprite2;
+
+	//爆炸
+		var blastsheet= new createjs.SpriteSheet({
+			"images":[balstimg],
+			"frames":{"height":80,"count":14,"width":80},
+			"animations":{run:[0,13]}
+		});
+		var blast=new createjs.Sprite(blastsheet);
+
+
+	//wapon
+		var wapon1spritesheet = new createjs.SpriteSheet({
+			"images":[wapon1img],
+			"frames":{"height":80,"count":10,"width":80},
+			"animations":{run:[0,9]}
+		})
+		wapon1sprite = new createjs.Sprite(wapon1spritesheet);
+
+		var wapon2spritesheet = new createjs.SpriteSheet({
+			"images":[wapon2img],
+			"frames":{"height":80,"count":10,"width":80},
+			"animations":{run:[0,9]}
+		})
+		wapon2sprite = new createjs.Sprite(wapon2spritesheet);
+		waponNow=wapon1sprite;
+			// waponsprite.play();
+
+
+	//dashline
+		degdashline=new createjs.Shape();
+		degdashline.graphics.setStrokeStyle(4).beginStroke("#9fa56e");
+		stage.addChild(degdashline)
+
+	//游戏下方菜单
+		var menulow = new createjs.Bitmap(menulowimg);
+		menulow.y=510;
+		var healthborder=new createjs.Bitmap(healthborderimg);
+		healthborder.y=480;
+		healthborder.x=1;
+		var healthinf=new createjs.Bitmap(healthinfimg);
+		var strengthinf=new createjs.Bitmap(strengthinfimg);
+		healthinf.y=581;
+		strengthinf.y=581;
+		strengthinf.x=938;
+		var strengthborder=new createjs.Bitmap(strengthborderimg);
+		strengthborder.y=480;
+		strengthborder.x=942;
+		var health=new createjs.Bitmap(healthimg);
+		var strength=new createjs.Bitmap(strengthimg);
+		health.y=503;
+		health.x=6;
+		strength.y=503;
+		strength.x=946;
+		var degclock=new createjs.Bitmap(degclockimg);
+		degclock.y=505;
+		degclock.x=60;
+		var zhiye= new createjs.Bitmap(zhiyeimg);
+		zhiye.y=512;
+		zhiye.x=217;
+		var chizi=new createjs.Bitmap(chiziimg);
+		chizi.x=155;
+		chizi.y=570;
+		var powerpres=new createjs.Bitmap(powerpresimg);
+		var rect = new createjs.Shape();
+		rect.graphics.beginFill('white').drawRect(157,572,0,23);
+		powerpres.mask=rect;
+		powerpres.x=157;
+		powerpres.y=572;
+		healthtext = new createjs.Text(data[0].health+"/100", "15px Arial", "RED");
+		healthtext.textBaseline = "alphabetic";
+		healthtext.y=598;
+		healthtext.x=2;
+		strengthtext = new createjs.Text(data[0].strength+"/100", "15px Arial", "RED");
+		strengthtext.textBaseline = "alphabetic";
+		strengthtext.y=598;
+		strengthtext.x=945;
+		var fly=new createjs.Bitmap(flyimg);
+		fly.x = 796;
+		fly.y=520;
+		var waponpre=new createjs.Bitmap(waponpreimg);
+		waponpre.x=225;
+		waponpre.y=520;
+		var waponpre_1=new createjs.Bitmap(waponbluepreimg);
+		waponpre_1.x=275;
+		waponpre_1.y=525;
+		countimg=new createjs.Bitmap(count0img);
+		countimg.x=455;
+		countimg.y=30;
+		countback=new createjs.Bitmap("image/countback.png");
+		stage.addChild(countback);
+		countback.x=450;
+		countback.y=25;
+		yourturn=new createjs.Bitmap(yourturn_red);
+		yourturn.x=310;
+		yourturn.y=200;
+
+		menucontainer=new createjs.Container();
+	    for(var i=0;i<3;i++){
+	    	var waponlist=new createjs.Bitmap(waponlistimg);
+	    	waponlist.x=279+i*43;
+	    	waponlist.y=525;
+	    	menucontainer.addChild(waponlist);
+	    	if(i!=0){
+	    		var lock=new createjs.Bitmap(lockimg);
+		    	lock.x=waponlist.x+6;
+		    	lock.y=529;
+	    		menucontainer.addChild(lock);	    		
+	    	}
+	    }
+	    for(var i=0;i<3;i++){
+	    	var key=new createjs.Bitmap(keyimg);
+	    	key.x=665+i*42;
+	    	key.y=520;
+	    	menucontainer.addChild(key);
+	    }
+	    for(var i=0;i<3;i++){
+	    	var key=new createjs.Bitmap(keyimg);
+	    	key.x=665+i*42;
+	    	key.y=559;
+	    	menucontainer.addChild(key);
+	    }
+	    
+	    powerupthing=new createjs.Bitmap(powerupimg);
+	    powerupthing.x=670;
+	    powerupthing.y=525;
+	    powerupthing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(heroNow==herosprite1){
+				alert("powerup")
+					if(data[0].strength>=40){
+						data[0].powerupthing=true;	
+						data[0].strength-=40;
+						strengthchange=true;					
+					}
+				}	
+				if(heroNow==herosprite2){
+				alert("powerup")
+					if(data[1].strength>=40){
+						data[1].powerupthing=true;	
+						data[1].strength-=40;	
+						strengthchange=true;				
+					}
+				}
+	    	}	
+	    })
+
+	    medthing=new createjs.Bitmap(medimg);
+	    medthing.x=712;
+	    medthing.y=525;
+	    medthing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(heroNow==herosprite1){
+				alert("medthing");
+					if(data[0].strength>=40){
+						data[0].health+=15;
+						if(data[0].health>100){
+							data[0].health=100;
+						}
+						data[0].strength-=40;
+						herohealthchange=true;
+						strengthchange=true;
+					}
+				}
+				if(heroNow==herosprite2){
+				alert("medthing");
+					if(data[1].strength>=40){
+						data[1].health+=15;
+						if(data[1].health>100){
+							data[1].health=100;
+						}
+						data[1].strength-=40;
+						herohealthchange=true;
+						strengthchange=true;
+					}
+				}
+	    	}	
+	    })
+
+	    defthing=new createjs.Bitmap(defimg);
+	    defthing.x=753;
+	    defthing.y=525;
+	    defthing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(heroNow==herosprite1){
+					alert("defthing")
+					if(data[0].strength>=40){
+						data[0].defthing=true;
+						data[0].strength-=40;
+						strengthchange=true;
+					}
+				}
+				if(heroNow==herosprite2){
+					alert("defthing")
+					if(data[1].strength>=40){
+						data[1].defthing=true;
+						data[1].strength-=40;
+						strengthchange=true;
+					}
+				}
+	    	}	
+	    })
+
+	    averhealththing=new createjs.Bitmap(averhealthimg);
+	    averhealththing.x=670;
+	    averhealththing.y=565;
+	    averhealththing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(heroNow==herosprite1){
+				alert("averhealththing")
+					if(data[0].strength>=40){
+						data[0].averhealththing=true;
+						data[0].strength-=40;
+						strengthchange=true;
+					}
+				}
+				if(heroNow==herosprite2){
+				alert("averhealththing")
+					if(data[1].strength>=40){
+						data[1].averhealththing=true;
+						data[1].strength-=40;
+						strengthchange=true;
+					}
+				}
+	    	}	
+	    })
+
+	    pofuchenzhouthing=new createjs.Bitmap(pofuchenzhouimg);
+	    pofuchenzhouthing.x=712;
+	    pofuchenzhouthing.y=565;
+	    pofuchenzhouthing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				
+				if(heroNow==herosprite1){
+					if(data[0].strength>=40){
+						alert("pofuchenzhouthing")
+						data[0].pofuchenzhouthing=(data[0].health-1);
+						data[0].health=1;
+						data[0].strength-=40;
+						herohealthchange=true;
+						strengthchange=true;
+					}
+				}
+				if(heroNow==herosprite2){
+					if(data[1].strength>=40){
+						alert("pofuchenzhouthing")
+						data[1].pofuchenzhouthing=(data[1].health-1);
+						data[1].health=1;
+						data[1].averhealththing=true;
+						data[1].strength-=40;
+						herohealthchange=true;
+						strengthchange=true;
+					}
+				}
+	    	}	
+	    })
+
+	    changeposthing=new createjs.Bitmap(changeposimg);
+	    changeposthing.x=753;
+	    changeposthing.y=565;
+	    changeposthing.addEventListener("mousedown",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(heroNow==herosprite1){
+				alert("changeposthing")
+					if(data[0].strength>=40){
+						data[0].changeposthing=true;
+						data[0].strength-=40;
+						strengthchange=true;
+					}
+				}
+				if(heroNow==herosprite2){
+				alert("changeposthing")
+					if(data[1].strength>=40){
+						data[1].changeposthing=true;
+						data[1].strength-=40;
+						strengthchange=true;
+					}
+				}
+	    	}	
+	    })
+
+
+	    menucontainer.addChild(menulow)
+	    menucontainer.addChild(powerpres);
+	    menucontainer.addChild(healthborder);
+	    menucontainer.addChild(healthinf);
+	    menucontainer.addChild(strengthinf);
+	    menucontainer.addChild(strengthborder);
+	    menucontainer.addChild(health);
+	    menucontainer.addChild(strength);
+	    menucontainer.addChild(degclock);
+	    menucontainer.addChild(zhiye);
+	    menucontainer.addChild(chizi);
+	    menucontainer.addChild(powerpres);
+	    menucontainer.addChild(healthtext);
+	    menucontainer.addChild(strengthtext);
+	    menucontainer.addChild(fly);
+	    menucontainer.addChild(waponpre)
+	    menucontainer.addChild(waponpre_1);
+	    menucontainer.addChild(yourturn);
+	    menucontainer.addChild(powerupthing);
+	    menucontainer.addChild(medthing);
+	    menucontainer.addChild(defthing);
+	    menucontainer.addChild(averhealththing);
+	    menucontainer.addChild(pofuchenzhouthing);
+	    menucontainer.addChild(changeposthing);
+	    stage.addChild(menucontainer);
+	    stage.addChild(countimg);
+
+		entergame=new createjs.Bitmap(entergameimg);
+		entergame.x=425;
+		entergame.y=250;
+//英雄选择 
+		heroselectbg=new createjs.Bitmap(heroselectbgimg);
+		heroselect=new createjs.Bitmap(heroselectimg);
+		heroselect.x=200;
+		heroselect.y=100;
+		IVAN=new createjs.Bitmap(IVANimg);
+		IVAN.x=300;
+		IVAN.y=150;
+		IVAN.addEventListener("mousedown",function(e){
+			IVAN.image=IVAN_selectedimg;
+			if(IVANselected==false){
+				if(data[0].name==null){
+					data[0].name="IVAN";
+					IVANselected=true;
+					player1=new createjs.Text("玩家1", "20px Arial", "RED");
+					player1.x=330;
+					player1.y=410;
+					stage.addChild(player1);
+				}else if(data[1].name==null){
+					data[1].name="IVAN";
+					IVANselected=true;
+					player2=new createjs.Text("玩家2", "20px Arial", "BLUE");
+					player2.x=330;
+					player2.y=410;
+					stage.addChild(player2);
+					stage.addChild(entergame);
+				}
+			}
+		})
+
+		FIONA=new createjs.Bitmap(FIONAimg);
+		FIONA.x=600;
+		FIONA.y=150;
+		FIONA.addEventListener("mousedown",function(e){
+			FIONA.image=FIONA_selectedimg;
+			if(FIONAselected==false){
+				if(data[0].name==null){
+					data[0].name="FIONA";
+					FIONAselected=true;
+					player1=new createjs.Text("玩家1", "20px Arial", "RED");
+					player1.x=620;
+					player1.y=410;
+					stage.addChild(player1);
+				}else if(data[1].name==null){
+					data[1].name="FIONA";
+					FIONAselected=true;
+					player2=new createjs.Text("玩家2", "20px Arial", "BLUE");
+					player2.x=620;
+					player2.y=410;
+					stage.addChild(player2);
+					stage.addChild(entergame);
+				}
+			}
+		})
+		FIONA.addEventListener("mousedown",function(e){
+			FIONA.image=FIONA_selectedimg;
+		})
+		stage.addChild(heroselectbg);
+		stage.addChild(heroselect);
+		stage.addChild(IVAN);
+		stage.addChild(FIONA);
+
+		entergame.addEventListener("mousedown",function(e){
+			stage.removeChild(heroselectbg);
+			stage.removeChild(heroselect);
+			stage.removeChild(IVAN);
+			stage.removeChild(FIONA);
+			stage.removeChild(entergame);
+			stage.removeChild(player1);
+			stage.removeChild(player2);
+			gamestart=true;
+		})
+//开始游戏
+		startgamebg=new createjs.Bitmap(startgamebgimg);
+		stage.addChild(startgamebg);
+		startgamebtn=new createjs.Bitmap(startgamebtnimg);
+		startgamebtn.x=373;
+		startgamebtn.y=237;
+		stage.addChild(startgamebtn);
+
+		startgamebtn.addEventListener("mousedown",function(e){
+			startgamebtn.image=startgamebtn_pressimg;
+			stage.removeChild(startgamebg);
+			stage.removeChild(startgamebtn);
+		})
+		// startgamebtn.addEventListener("pressup",function(e){
+		// 	startgamebtn.image=startgamebtnimg;
+		// })
+
+		addEventListener("keydown",handleKeyDown);
+		addEventListener("keyup",handleKeyUp);
+		smallmap.addEventListener("pressmove",function(e){
+			smallmap.x = stage.mouseX-200/6;
+			var x = smallmap.x;
+			var top = Math.floor(1000-200/3);
+			if(x > top){
+				smallmap.x = top;
+			}else if(x < 880){
+				smallmap.x = 880;
+			}
+			smallmap.y = stage.mouseY-20;
+			var y = smallmap.y;
+			if(y > 80){
+				smallmap.y = 80;
+			}else if(y < 0){
+				smallmap.y = 0;
+			}
+			var lasttimelandbitmapx = landbitmap.x;
+			var lasttimelandbitmapy = landbitmap.y;
+			landbitmap.x =- (smallmap.x - 880) * 15;
+			landbitmap.y =- (smallmap.y) * 15;
+			bgFar2bitmap.x=(landbitmap.x)/2;
+			bgFar2bitmap.y=(landbitmap.y)/2-100;
+			herosprite1.x += (landbitmap.x - lasttimelandbitmapx);
+			herosprite1.y += (landbitmap.y - lasttimelandbitmapy);
+			herosprite2.x += (landbitmap.x - lasttimelandbitmapx);
+			herosprite2.y += (landbitmap.y - lasttimelandbitmapy);
+		})
+		stage.addEventListener("stagemousemove",function(e){
+			if(stage.mouseX>796&&stage.mouseY>520&&stage.mouseX<850&&stage.mouseY<600){
+				fly.image=fly_hoverimg;
+				menucontainer.removeChild(fly);
+				menucontainer.addChild(fly);
+				stage.update();
+			}else{
+				fly.image=flyimg;
+				menucontainer.removeChild(fly);
+				menucontainer.addChild(fly);
+				stage.update();
+			}
+
+		})
+		stage.addEventListener("click",function(e){
+			if(keyNow==null&&huihestart==true){
+				if(stage.mouseX>796&&stage.mouseY>520&&stage.mouseX<850&&stage.mouseY<600){
+					flybool=true;
+				}
+			}
+			
+		})
+		// fpsLabel = new createjs.Text("-- fps", "normal 24px Arial", "#FFF");
+		// stage.addChild(fpsLabel);
+		// fpsLabel.x = 10;
+		// fpsLabel.y = 20;
+
+//游戏结束
+		endgamebg=new createjs.Bitmap(endgamebgimg);	
+		end_winner=new createjs.Bitmap(IVAN_winimg);
+		end_loser=new createjs.Bitmap(FIONA_loseimg);
+		end_winner.x=170;
+		end_winner.y=220;
+		end_loser.x=600;
+		end_loser.y=230;
+		win=new createjs.Bitmap(winimg);
+		lose=new createjs.Bitmap(loseimg);
+		win.x=150;
+		win.y=120;
+		lose.x=560;
+		lose.y=120;
+		restart=new createjs.Bitmap(restartimg);
+		restart.x=460;
+		restart.y=210;
+		restart.addEventListener("mousedown",function(e){
+			restart.image=restart_presssimg;
+			location.reload();
+		})
+		createjs.Ticker.setFPS(60);
+		createjs.Ticker.addEventListener("tick", function(){
+			tick(herospritesheet,landbitmap,powerpres,wapon1sprite,wapon2sprite,previewborder,preland,smallmap,menucontainer,chizi,menulow,healthtext,strengthtext,health,blast,strength,waponpre,waponpre_1)
+		});
+	}
+
+	var countinterval=setInterval(function(){
+		if(intervallastcount==true&&huihestart==true){
+			if(countimgcount<0){
+				countimgcount=9;
+				resetinterval();
+				herochange();
+			}
+			var imgstr=eval("count"+countimgcount+"img");
+			countimg.image=imgstr;
+			countimgcount--;
+		}
+
+	},1000)
+
+
+
+	// 武器角度
+	function setdashdeg(dash,sprite,map){
+		x1 = sprite.x;
+		y1 = sprite.y;
+		dashlength = 40;
+		y2 = y1 - dashlength*Math.sin(dashdeg/57);
+		x2 = x1 - dashlength*Math.cos(dashdeg/57);
+		drawDashLine(x1,y1,x2,y2,4,dash);
+		//drawDashLine()
+	}
+	//求斜边长度
+	function getBeveling(x,y){  
+	    return Math.ceil(Math.sqrt(Math.pow(x,2)+Math.pow(y,2)));  
+	}  
+	  // 武器角度的虚线
+	function drawDashLine(x1,y1,x2,y2,dashLen,shape)  {  
+	    dashLen = dashLen === undefined ? 5 : dashLen;  
+	    //得到斜边的总长度  
+	    var beveling = getBeveling(x2-x1,y2-y1);  
+	    //计算有多少个线段  
+	    var num = Math.floor(beveling/dashLen);  
+	    shape.graphics.clear();
+	    shape.graphics.setStrokeStyle(4).beginStroke("#9fa56e");
+	    for(var i = 0 ; i < num; i++)  
+	    {  
+	    	if(i%2==0){
+	    		shape.graphics.moveTo(x1+(x2-x1)/num*i,y1+(y2-y1)/num*i);
+	    	}{
+	    		shape.graphics.lineTo(x1+(x2-x1)/num*i,y1+(y2-y1)/num*i);
+	    	}
+	    }  
+	    stage.addChild(shape)
+	    stage.update();
+	}  
+	// 设置角度
+	function setdeg(sprite,spritesheet,deg){
+		sprite.regX = (spritesheet._frameWidth/2);
+		sprite.regY = (spritesheet._frameHeight/2);
+		sprite.rotation =- deg;
+	}
+	//键位按下
+	function handleKeyDown(e) {
+	  switch (e.keyCode) {
+	      case 65:  // A
+	      	  if((keyNow==null||keyNow==65)&&huihestart==true){
+	          moveLeft = true;	 
+	          keyNow=65;
+	      	  }
+	          break;
+	      case 68:  // D
+	      	  if((keyNow==null||keyNow==68)&&huihestart==true){
+	          moveRight = true;
+	          keyNow=68;
+	      	  }
+	          // character.play();
+	          break;
+			case 87:  // W
+	      	  if((keyNow==null||keyNow==87)&&huihestart==true){
+				turnTop = true;
+				keyNow=87;
+			}
+			break;
+			case 83:  // S
+	      	  if((keyNow==null||keyNow==83)&&huihestart==true){
+			turnDown = true;
+			keyNow=83;
+		}
+			break;
+			case 32:  //space
+	      	  if((keyNow==null||keyNow==32)&&huihestart==true){
+				powerup = true;
+				throwwapon = false;
+				intervallastcount=false;
+				keyNow=32;
+			}
+				break;
+			case 81:
+	      	  if((keyNow==null)&&huihestart==true){
+				waponchange=true;
+				keyNow=81;
+			}
+				break;
+			case 13:
+			  if(huihestart==false){
+			  	huihestart=true;
+			  	menucontainer.removeChild(yourturn);
+			  }
+	  }
+	}
+	  //键位弹起
+	function handleKeyUp(e) {
+	  switch (e.keyCode) {
+	      case 65:  // A
+	      if(keyNow==65&&huihestart==true){
+	          moveLeft = false;	    
+	          keyNow=null;  	
+	      }
+	          break;
+	      case 68:  // D
+	      if(keyNow==68&&huihestart==true){
+	          moveRight = false;	    
+	          keyNow=null;
+	          //character.gotoAndStop(0);
+	      }
+	    	case 87:  // W
+	      if(keyNow==87&&huihestart==true){
+	          keyNow=null;
+			turnTop = false;  
+		}
+			break;	  
+			case 83:  // S
+	      if(keyNow==83&&huihestart==true){
+	          keyNow=null;
+			turnDown = false;
+		}
+			break;
+			case 32: //space
+	      if(keyNow==32&&huihestart==true){
+			resetwaponpos = true;
+			powerup = false;
+			throwwapon = true;
+			addspeedx = power * Math.cos((dashdeg/360) * Math.PI * 2);
+
+	          keyNow=null;
+			addspeedy=(power * Math.sin((dashdeg/360) * Math.PI * 2));
+		}
+		break;
+			case 81:
+	      	  if(huihestart==true){
+				keyNow=null;
+			}
+				break;
+	  }
+	}
+	function tick(spritesheet,dashl,powerpres,wapon1sprite,wapon2sprite,previewborder,preland,smallmap,menucontainer,chizi,menulow,healthtext,strengthtext,health,blast,strength,wapon1,wapon2){
+		sprite=heroNow;
+		if(waponchange==true){
+			var img_r=wapon1.image;
+			wapon1.image=wapon2.image;
+			wapon2.image=img_r;
+			waponNow=(waponNow===wapon1sprite?wapon2sprite:wapon2sprite);
+			waponchange=false;
+		}
+		//检测新的坑出来
+		if(hold){
+			if(blast.currentFrame>6){
+				var mapx = landbitmap.x;
+				var mapy = landbitmap.y;
+				if(landbitmapData==undefined){
+					landbitmapData = new createjs.BitmapData(landimg);
+				}
+				
+
+					clearArc(addholdlist[addholdlist.length-1].x,addholdlist[addholdlist.length-1].y,addholdlist[addholdlist.length-1].radius)
+					stepClear = 1;
+
+					resetinterval();
+					herochange();
+					intervallastcount=true;
+
+				stage.removeChild(landbitmap);
+				landbitmap = new createjs.Bitmap(landbitmapData.canvas);
+				stage.addChild(landbitmap);
+				stage.removeChild(previewborder);
+				stage.addChild(previewborder);
+				stage.removeChild(preland);
+				stage.addChild(preland);
+				stage.removeChild(smallmap);
+				stage.addChild(smallmap);
+				stage.removeChild(countback);
+				stage.addChild(countback);
+				stage.removeChild(countimg);
+				stage.addChild(countimg);
+				stage.removeChild(menucontainer);
+				stage.addChild(menucontainer);
+				landbitmap.x = mapx;
+				landbitmap.y = mapy;
+				hold=false;
+			}
+		}
+		if(blast.currentFrame<lastcount){
+			blast.stop();
+			stage.removeChild(blast);
+			blastanimation=false;
+		}
+		if(blastanimation=true){
+			lastcount=blast.currentFrame;
+		}
+		//检测移动
+		if (moveLeft==true) {
+			if(landbitmap.hitTest(heroNow.x - landbitmap.x - spritesheet._frameWidth/2 , heroNow.y - landbitmap.y)){
+				
+			}else if(landbitmap.x >= 0){
+				landbitmap.x = 0;
+				heroNow.x -= xVel;
+				if(heroNow.x < 35){
+					heroNow.x = 35;
+				}
+			}else if(heroNow.x > 500 && landbitmap.x < 0){
+					heroNow.x-=xVel;
+				}else if(heroNow.x<=500 && landbitmap.x < 0){
+					landbitmap.x += xVel;
+					heronoNow.x+=xVel;
+					bgFar2bitmap.x += (xVel/2);
+				}
+		  if (heroNow.scaleX < 0) {
+		      heroNow.scaleX *= -1;
+		  }
+		  strengthdown(heroNow);
+		  strengthchange=true;
+		  
+		}else if (moveRight==true) {
+			if(landbitmap.hitTest(heroNow.x - landbitmap.x + spritesheet._frameWidth/2 , heroNow.y - landbitmap.y)){
+				
+			}else if(landbitmap.x <= -800){
+				landbitmap.x = -800;
+				heroNow.x += xVel;
+				if(heroNow.x - landbitmap.x > 1765){
+					heroNow.x = 1765 + landbitmap.x;
+				}
+			}else if(heroNow.x<=500){
+					heroNow.x+=xVel;
+				}else if(heroNow.x>500&&landbitmap.x>-800){
+						landbitmap.x -= xVel;
+							heronoNow.x-=xVel;
+						bgFar2bitmap.x-=(xVel/2);
+						if(heroNow.x - landbitmap.x > 1765){
+							heroNow.x = 1765 + landbitmap.x;
+						}
+					}
+		  
+			if (heroNow.scaleX > 0) {
+			  heroNow.scaleX *= -1;
+			}
+			strengthdown(heroNow);
+			strengthchange=true;
+		}
+
+		//设置人物角度
+		if(!flybool){
+			var deg2 = setheropos(herosprite2,spritesheet,landbitmap,lasttimehero2deg);
+			lasttimehero2deg = deg2;
+			setdeg(herosprite2,spritesheet,deg2);
+			var deg1 = setheropos(herosprite1,spritesheet,landbitmap,lasttimehero1deg);
+			lasttimehero1deg = deg1;
+			setdeg(herosprite1,spritesheet,deg1);
+		}
+
+		//武器发射角度
+		if(dashlready&&gamestart==true){
+			if(turnTop){
+				dashdeg += 5;
+			}else if(turnDown){
+				dashdeg -= 5;
+			}
+			dashdeg = (dashdeg + 360) % 360;
+			setdashdeg(degdashline,sprite,landbitmap);
+		}
+
+		// healthrect.graphics.drawRect(0,0,60,data[0].health)
+
+		//力道条
+		if(powerup){
+			if(power >= 100){
+				power = 100;
+			}else{
+				power++;
+			}
+			var rect=new createjs.Shape();
+			rect.graphics.drawRect(157,572,power*5,23);
+			rect.alpha=0;
+			powerpres.mask=rect;
+		}
+		//重置武器
+		if(resetwaponpos){
+			waponNow.x = sprite.x - spritesheet._frameWidth/2 ;
+			waponNow.y = sprite.y - spritesheet._frameHeight/2;
+			resetwaponpos = false;
+		}
+
+		//武器是否扔出
+		if(throwwapon == true&&flybool!=true){
+			stage.addChild(waponNow);
+			waponNow.x -= addspeedx;
+			addspeedy -= gravity;
+			waponNow.y -= addspeedy;
+			waponNow.play(); 
+			if(waponNow.x + 40- landbitmap.x<0||waponNow.y + 40- landbitmap.y>1800||waponNow.x + 40- landbitmap.x>1800){
+				stage.removeChild(waponNow);
+				throwwapon = false;
+				resetinterval();
+				herochange();
+			}
+			if(landbitmap.hitTest(waponNow.x + 40- landbitmap.x , waponNow.y + 40- landbitmap.y)||heronoNow.hitTest(waponNow.x + 40- heronoNow.x , waponNow.y + 40- heronoNow.y)){
+				if(Math.abs(waponNow.x+40-heronoNow.x)<50&&Math.abs(waponNow.y+40-heronoNow.y)<50){
+					healthdown(heronoNow);
+				}
+				if(Math.abs(waponNow.x+40-heroNow.x)<50&&Math.abs(waponNow.y+40-heroNow.y)<50){
+					healthdown(heroNow);
+				}
+				//clearArc(waponsprite.x+40,waponsprite.y+40,40);
+				addholdlist.push({"x" : (waponNow.x + 40- landbitmap.x) , "y" : (waponNow.y + 40- landbitmap.y) , "radius" : 40});
+				stage.addChild(blast);
+				blast.x=waponNow.x;
+				blast.y=waponNow.y;
+				blast.play();
+				stage.removeChild(waponNow);
+				throwwapon = false;
+				hold = true;
+			}
+		}
+
+		//飞行
+		if(flybool==true&&throwwapon==true){
+			heroNow.x-=addspeedx;
+			addspeedy-=gravity;
+			heroNow.y-=addspeedy;
+			document.getElementsByTagName('title')[0].innerHTML=heroNow.x;
+			if(landbitmap.hitTest(heroNow.x + 40- landbitmap.x , heroNow.y + 40- landbitmap.y)||(heroNow.x + 40- landbitmap.x)<0||(heroNow.y + 40- landbitmap.y)>1800){
+				var deg2 = setheropos(herosprite2,spritesheet,landbitmap,lasttimehero2deg);
+				lasttimehero2deg = deg2;
+				setdeg(herosprite2,spritesheet,deg2);
+				var deg1 = setheropos(herosprite1,spritesheet,landbitmap,lasttimehero1deg);
+				lasttimehero1deg = deg1;
+				setdeg(herosprite1,spritesheet,deg1);
+				flybool=false;
+				throwwapon=false;
+				resetwaponpos=true;
+				if(heroNow==herosprite1){
+					heroNow=herosprite2;
+					heronoNow=herosprite1;
+				}else{
+					heroNow=herosprite1;
+					heronoNow=herosprite2;
+				}
+				power=0;
+				dashdeg=45;
+			}
+			if((heroNow.x-landbitmap.x)<0){
+				heroNow.x=landbitmap.x+40;
+				var deg2 = setheropos(herosprite2,spritesheet,landbitmap,lasttimehero2deg);
+				lasttimehero2deg = deg2;
+				setdeg(herosprite2,spritesheet,deg2);
+				var deg1 = setheropos(herosprite1,spritesheet,landbitmap,lasttimehero1deg);
+				lasttimehero1deg = deg1;
+				setdeg(herosprite1,spritesheet,deg1);
+				flybool=false;
+				throwwapon=false;
+				resetwaponpos=true;
+				if(heroNow==herosprite1){
+					heroNow=herosprite2;
+					heronoNow=herosprite1;
+				}else{
+					heroNow=herosprite1;
+					heronoNow=herosprite2;
+				}
+				power=0;
+				dashdeg=45;
+			}
+			if((heroNow.x-landbitmap.x)>1800){
+				heroNow.x=1760+landbitmap.x;
+				var deg2 = setheropos(herosprite2,spritesheet,landbitmap,lasttimehero2deg);
+				lasttimehero2deg = deg2;
+				setdeg(herosprite2,spritesheet,deg2);
+				var deg1 = setheropos(herosprite1,spritesheet,landbitmap,lasttimehero1deg);
+				lasttimehero1deg = deg1;
+				setdeg(herosprite1,spritesheet,deg1);
+				flybool=false;
+				throwwapon=false;
+				resetwaponpos=true;
+				if(heroNow==herosprite1){
+					heroNow=herosprite2;
+					heronoNow=herosprite1;
+				}else{
+					heroNow=herosprite1;
+					heronoNow=herosprite2;
+				}
+				power=0;
+				dashdeg=45;
+			}
+		}
+		//人物名字
+		if(gamestart==true){
+			text1.x=herosprite1.x- spritesheet._frameWidth/2 ;
+			text1.y=herosprite1.y- spritesheet._frameHeight/2 ;
+
+			text2.x=herosprite2.x- spritesheet._frameWidth/2 ;
+			text2.y=herosprite2.y- spritesheet._frameHeight/2 ;
+			stage.addChild(text1);
+			stage.addChild(text2);
+		}
+		
+
+		//血条
+		if(herohealthchange==true){
+			if(heroNow==herosprite1){
+				healthtext.text=data[0].health+"/100";
+				strengthtext.text=data[0].strength+"/100";
+				var rect=new createjs.Shape();
+				rect.graphics.drawRect(6,503+(100-data[0].health)*0.76,47,data[0].health*0.76);
+				rect.alpha=0;
+				health.mask=rect;
+				herohealthchange=false;
+			}else{
+				healthtext.text=data[1].health+"/100";
+				strengthtext.text=data[1].strength+"/100";
+				var rect=new createjs.Shape();
+				rect.graphics.drawRect(6,503+(100-data[1].health)*0.76,47,data[1].health*0.76);
+				rect.alpha=0;
+				health.mask=rect;
+				herohealthchange=false;
+			}
+		}
+		//体力条
+		if(strengthchange==true){
+			if(heroNow==herosprite1){
+				if(data[0].strength<0){
+					data[0].strength=0;
+				}
+				strengthtext.text=data[0].strength+"/100";
+				var rect=new createjs.Shape();
+				rect.graphics.drawRect(946,503+(100-data[0].strength)*0.76,47,data[0].strength*0.76);
+				rect.alpha=0;
+				strength.mask=rect;
+				herohealthchange=false;
+			}else{
+				if(data[0].strength<0){
+					data[1].strength=0;
+				}
+				strengthtext.text=data[1].strength+"/100";
+				var rect=new createjs.Shape();
+				rect.graphics.drawRect(946,503+(100-data[1].strength)*0.76,47,data[1].strength*0.76);
+				rect.alpha=0;
+				strength.mask=rect;
+				strengthchange=false;
+			}
+		}
+		checkhealth();
+		if(endgame==true){
+			stage.addChild(endgamebg);
+			gamestart=false;
+			huihestart=false;
+			if(winner==herosprite1){
+				end_winner.image=IVAN_winimg;
+				end_loser.image=FIONA_loseimg;
+			}else{
+				end_loser.image=IVAN_loseimg;
+				end_winner.image=FIONA_winimg;
+			}
+			stage.addChild(end_loser);
+			stage.addChild(end_winner);
+			stage.addChild(win);
+			stage.addChild(lose);
+			stage.addChild(restart);
+		}
+		//fpsLabel.text = Math.round(createjs.Ticker.getMeasuredFPS()) + " fps";
+		//舞台更新
+		stage.update();
+	}
+
+	function resetinterval(){
+		clearInterval(countinterval);
+		countimgcount=9;
+		countinterval=setInterval(function(){
+			if(intervallastcount==true&&huihestart==true){
+				if(countimgcount<0){
+					countimgcount=9;
+					resetinterval();
+					herochange();
+				}
+				var imgstr=eval("count"+countimgcount+"img");
+				countimg.image=imgstr;
+				countimgcount--;
+			}
+			
+		},1000);
+
+	}
+
+
+	//清除圆形区域函数
+	function clearArc(x,y,radius){//圆心(x,y)，半径radius  
+	    var calcWidth = radius-stepClear;  
+	    var calcHeight = Math.sqrt(radius*radius - calcWidth*calcWidth);  
+	      
+	    var posX = Math.ceil(x-calcWidth);  
+	    var posY = Math.ceil(y-calcHeight);  
+	      
+	    var widthX = Math.ceil(2*calcWidth);  
+	    var heightY = Math.ceil(2*calcHeight);  
+	     // alert(posX+" "+posY+" "+widthX+" "+heightY)
+	    if(stepClear <= (radius-1)){  
+			rect1 = new createjs.Rectangle(posX,posY,widthX,heightY);
+			var data01 = landbitmapData.getPixels(rect1);
+			for (var i = 0, l = data01.length; i < l; i += 4) {
+				var a = i + 3;
+				data01[a] = 0;
+			}
+			landbitmapData.setPixels(rect1, data01);
+	        stepClear += 1;  
+	        rect1 = null;
+
+	        clearArc(x,y,radius);  
+	    }  else{
+	    	return landbitmapData;
+	    }
+	}  
+
+	//玩家变换
+	function herochange(){
+		if(heroNow==herosprite1){
+			heroNow=herosprite2;
+			heronoNow=herosprite1;
+		}else{
+			heroNow=herosprite1;
+			heronoNow=herosprite2;
+		}
+		herohealthchange=true;
+		strengthchange=true;
+		power=0;
+		dashdeg=45;
+		intervallastcount=true;
+		huihestart=false;
+		if(yourturn.image==yourturn_blue){
+		yourturn.image=yourturn_red;
+		menucontainer.addChild(yourturn);
+		stage.update();
+		}else{
+		yourturn.image=yourturn_blue;		
+		menucontainer.addChild(yourturn);	
+		stage.update();
+		}
+
+	}
+
+	//生命值下降
+	function healthdown(obj){
+		var hd=10;
+		var sd=50;
+		if(heroNow==herosprite1){
+			if(data[0].powerupthing==true){
+				hd*=1.3;
+				sd*=1.3;
+				data[0].powerupthing=false;
+			}
+			if(data[0].pofuchenzhouthing>0){
+				hd*= (1+2*(data[0].pofuchenzhouthing/100));
+				sd*= (1+2*(data[0].pofuchenzhouthing/100));
+				data[0].pofuchenzhouthing=0;
+			}
+			if(data[0].name=="FIONA"){
+				var distance=Math.abs(herosprite1.x- herosprite2.x);
+				if(distance>300){
+					hd= Math.ceil(hd*(1+0.2*(Math.ceil((distance-300)/100))));
+					sd= Math.ceil(hd*(1+0.2*(Math.ceil((distance-300)/100))));
+				}
+				if(distance<=300){
+					hd=Math.ceil(hd*(0.5+(0.5*(distance/300))));
+					sd=Math.ceil(hd*(0.5+(0.5*(distance/300))));
+				}
+			}
+		}
+		if(heroNow==herosprite2){
+			if(data[1].powerupthing==true){
+				hd*=1.3;
+				sd*=1.3;
+				data[1].powerupthing=false;
+			}
+			if(data[1].pofuchenzhouthing>0){
+				hd*= (1+2*(data[1].pofuchenzhouthing/100));
+				sd*= (1+2*(data[1].pofuchenzhouthing/100));
+				data[1].pofuchenzhouthing=0;
+			}
+			if(data[1].name=="FIONA"){
+				var distance=Math.abs(herosprite1.x- herosprite2.x);
+				if(distance>300){
+					hd= Math.ceil(hd*(1+0.2*(Math.ceil((distance-300)/100))));
+					sd= Math.ceil(hd*(1+0.2*(Math.ceil((distance-300)/100))));
+				}
+				if(distance<=300){
+					hd=Math.ceil(hd*(0.5+(0.5*(distance/300))));
+					sd=Math.ceil(hd*(0.5+(0.5*(distance/300))));
+				}
+			}
+		}
+		if(waponNow==wapon1sprite){
+			if(obj==herosprite1){
+				if(data[0].defthing==true){
+					data[0].health-=(hd/2);
+					data[1].strength=100;	
+					data[0].defthing=false;
+				}else{
+					data[0].health-=hd;
+					data[1].strength=100;					
+				}
+			}
+			if(obj==herosprite2){
+				if(data[1].defthing==true){
+					data[1].health-=(hd/2);
+					data[0].strength=100;	
+					data[1].defthing=false;
+				}else{
+					data[1].health-=hd;
+					data[0].strength=100;					
+				}
+			}
+		}else{
+			if(obj==herosprite1){
+				if(data[0].defthing==true){
+					data[0].health-=(hd/4);
+					data[0].strength-=(sd/2);
+					data[1].strength=100;	
+					data[0].defthing=false;
+				}else{
+					data[0].health-=(hd/2);
+					data[0].strength-=sd;
+					data[1].strength=100;					
+				}
+			}
+			if(obj==herosprite2){
+				if(data[1].defthing==true){
+					data[1].health-=(hd/4);
+					data[1].strength-=(sd/2);
+					data[0].strength=100;
+					data[1].defthing=false;	
+				}else{
+					data[1].health-=(hd/2);
+					data[1].strength-=sd;
+					data[0].strength=100;					
+				}
+			}
+		}
+		if(heroNow==herosprite1){
+			if(data[0].averhealththing==true){
+				var sum=data[0].health+data[1].health;
+				data[0].health=sum/2;
+				data[1].health=sum/2;
+				data[0].averhealththing=false;
+			}
+			if(data[0].changeposthing==true){
+				var linshiX=herosprite1.x;
+				var linshiY=herosprite1.y;
+				herosprite1.x=herosprite2.x;
+				herosprite1.y=herosprite2.y;
+				herosprite2.x=linshiX;
+				herosprite2.y=linshiY;	
+				data[0].changeposthing=false;
+			}
+		}
+		if(heroNow==herosprite2){
+			if(data[1].averhealththing==true){
+				var sum=data[1].health+data[0].health;
+				data[0].health=sum/2;
+				data[1].health=sum/2;
+				data[1].averhealththing=false;
+			}
+			if(data[1].changeposthing==true){
+				var linshiX=herosprite1.x;
+				var linshiY=herosprite1.y;
+				herosprite1.x=herosprite2.x;
+				herosprite1.y=herosprite2.y;
+				herosprite2.x=linshiX;
+				herosprite2.y=linshiY;	
+				data[1].changeposthing=false;
+			}
+		}
+		
+	}
+	function strengthdown(obj,strengthdown){
+		var strd=strengthdown?strengthdown:4;
+		if(obj==herosprite1){
+			data[0].strength-=strd;
+		}
+		if(obj==herosprite2){
+			data[1].strength-=strd;
+		}
+	}
+
+	//设置英雄位置
+	function setheropos(sprite,sprotesheet,map,lastdeg){
+		var spriteCenter = sprite.x;
+		var spriteLeft = spriteCenter - 5 - map.x;
+		if(spriteLeft <= 0){
+			return lastdeg;
+		}
+		var spriteLeftHeight = 0;
+		var spriteRightHeight = 0;
+		var spriteY = sprite.y - map.y;
+		for(var i = spriteY ; i < 1800 ; i++){
+			if(map.hitTest(spriteLeft , i) && i > spriteY){
+				spriteLeftHeight = i;
+				break;
+			}
+		}
+		var spriteRight = spriteCenter + 5 - map.x;
+		if(spriteRight >= 1800){
+			return lastdeg;
+		}
+		for(var i = spriteY; i < 1800; i++){
+			if(map.hitTest(spriteRight,i) && i > spriteY){
+				spriteRightHeight = i;
+				break;
+			}
+		}
+		var ydiff = spriteLeftHeight - spriteRightHeight;
+		var deg = 360*Math.atan(ydiff/20)/(2*Math.PI);
+		var spriteCenter = spriteRight>spriteLeft ? spriteRightHeight:spriteLeftHeight;
+		sprite.y = spriteCenter - sprotesheet._frameHeight/2+map.y+3;
+		
+		return deg;
+	}
+	function checkhealth(){
+		if(herosprite1.y>2000){
+			endgame=true;
+			winner=herosprite2;
+			loser=herosprite1;
+		}
+		if(herosprite2.y>2000){
+			endgame=true;
+			winner=herosprite1;
+			loser=herosprite2;
+		}
+		if(data[0].health<=0){
+			if(data[0].name=="IVAN"&&IVANnodie==true){
+				data[0].health=1;
+				alert("IVANnodie")
+				IVANnodie=false;
+			}else{
+				endgame=true;
+				winner=herosprite2;
+				loser=herosprite1;
+			}
+		}
+		if(data[1].health<=0){
+			if(data[1].name=="IVAN"&&IVANnodie==true){
+				data[1].health=1;
+				alert("IVANnodie")
+				IVANnodie=false;
+			}else{
+				endgame=true;
+				winner=herosprite1;
+				loser=herosprite2;
+			}
+		}
+	}
+	setup();
+
+}())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
